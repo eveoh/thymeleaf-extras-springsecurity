@@ -4,7 +4,39 @@ Thymeleaf - Spring Security integration modules
 
 ------------------------------------------------------------------------------
 
-**[Please make sure to select the branch corresponding to the version of Thymeleaf you are using]**
+**[FORK -- only supports Thymeleaf 2.1.2.RELEASE]**
+
+Fork
+----
+
+This fork adds support for explicitely setting the index of the WebInvocationPrivilegeEvaluator that needs to be used.
+
+For more information, see [#5](https://github.com/thymeleaf/thymeleaf-extras-springsecurity/issues/5),
+[SEC-2045](https://jira.springsource.org/browse/SEC-2045), 
+[SEC-2101](https://jira.springsource.org/browse/SEC-2101), and
+[SEC-2105](https://jira.springsource.org/browse/SEC-2105).
+
+### Supported version
+
+- 2.1.2.RELEASE for Spring Security 3.x only (branch 2.1.2-wips)
+
+### Configuration
+
+```xml
+    <bean id="templateEngine" class="org.thymeleaf.spring3.SpringTemplateEngine">
+      ...
+      <property name="additionalDialects">
+        <set>
+          <bean class="org.thymeleaf.extras.springsecurity3.dialect.SpringSecurityDialect">
+            <constructor-arg value="2"/>
+          </bean>
+        </set>
+      </property>
+	  ...
+    </bean>
+```
+
+And that's all!
 
 Status
 ------
