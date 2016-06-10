@@ -43,12 +43,16 @@ public class AuthorizeUrlAttrProcessor
     
     public static final int ATTR_PRECEDENCE = 300;
     public static final String ATTR_NAME = "authorize-url";
+
+    private final int webInvocationPrivilegeEvaluatorIndex;
     
     
     
     
-    public AuthorizeUrlAttrProcessor() {
+    public AuthorizeUrlAttrProcessor(final int webInvocationPrivilegeEvaluatorIndex) {
         super(ATTR_NAME);
+
+        this.webInvocationPrivilegeEvaluatorIndex = webInvocationPrivilegeEvaluatorIndex;
     }
 
     
@@ -96,7 +100,7 @@ public class AuthorizeUrlAttrProcessor
         }
         
         return AuthUtils.authorizeUsingUrlCheck(
-                url, method, authentication, request, servletContext);
+                url, method, authentication, request, servletContext, webInvocationPrivilegeEvaluatorIndex);
         
     }
 

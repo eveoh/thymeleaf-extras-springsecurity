@@ -281,7 +281,8 @@ public final class AuthUtils {
     
     public static boolean authorizeUsingUrlCheck(
             final String url, final String method, final Authentication authentication, 
-            final HttpServletRequest request, final ServletContext servletContext) {
+            final HttpServletRequest request, final ServletContext servletContext,
+            int webInvocationPrivilegeEvaluatorIndex) {
         
         if (logger.isTraceEnabled()) {
             logger.trace("[THYMELEAF][{}] Checking authorization for URL \"{}\" and method \"{}\" for user \"{}\".",
@@ -289,7 +290,7 @@ public final class AuthUtils {
         }
         
         final boolean result =
-                getPrivilegeEvaluator(servletContext).isAllowed(
+                getPrivilegeEvaluator(servletContext, webInvocationPrivilegeEvaluatorIndex).isAllowed(
                     request.getContextPath(), url, method, authentication) ? 
                             true : false;
 
@@ -307,13 +308,14 @@ public final class AuthUtils {
     
 
 
-    
-    private static WebInvocationPrivilegeEvaluator getPrivilegeEvaluator(final ServletContext servletContext) {
+
+    private static WebInvocationPrivilegeEvaluator getPrivilegeEvaluator(final ServletContext servletContext,
+                                                                         int webInvocationPrivilegeEvaluatorIndex) {
 
         final ApplicationContext ctx =
                 WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        
-        final Map<String, WebInvocationPrivilegeEvaluator> privilegeEvaluators = 
+
+        final Map<String, WebInvocationPrivilegeEvaluator> privilegeEvaluators =
                 ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 
         if (privilegeEvaluators.size() == 0) {
@@ -323,8 +325,8 @@ public final class AuthUtils {
                     "Spring Security authorization queries.");
         }
 
-        return (WebInvocationPrivilegeEvaluator) privilegeEvaluators.values().toArray()[0];
-        
+        return (WebInvocationPrivilegeEvaluator) privilegeEvaluators.values().toArray()[webInvocationPrivilegeEvaluatorIndex];
+
     }
 
 
