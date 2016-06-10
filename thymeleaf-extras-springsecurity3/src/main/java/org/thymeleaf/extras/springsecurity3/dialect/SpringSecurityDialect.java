@@ -132,6 +132,7 @@ public class SpringSecurityDialect
                         new Authorization(processingContext, authentication, request, response, servletContext,
                                 webInvocationPrivilegeEvaluatorIndex);
 
+                objects.put(AUTHENTICATION_EXPRESSION_OBJECT_NAME, authentication);
                 objects.put(AUTHORIZATION_EXPRESSION_OBJECT_NAME, authorization);
                 
             }
