@@ -19,6 +19,7 @@ For more information, see [#5](https://github.com/thymeleaf/thymeleaf-extras-spr
 ### Supported version
 
 - 2.1.2.RELEASE for Spring Security 3.x only (branch 2.1.2-wips)
+- 2.1.3.RELEASE for both Spring Security 3.x and 4.x only (branch 2.1.3-wips)
 
 ### Configuration
 
