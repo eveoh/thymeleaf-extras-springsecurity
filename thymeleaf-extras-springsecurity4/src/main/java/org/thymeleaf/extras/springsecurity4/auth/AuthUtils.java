@@ -19,18 +19,6 @@
  */
 package org.thymeleaf.extras.springsecurity4.auth;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapperImpl;
@@ -54,6 +42,13 @@ import org.thymeleaf.exceptions.TemplateProcessingException;
 import org.thymeleaf.standard.expression.IStandardVariableExpressionEvaluator;
 import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.util.Validate;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 
@@ -285,7 +280,8 @@ public final class AuthUtils {
     
     public static boolean authorizeUsingUrlCheck(
             final String url, final String method, final Authentication authentication, 
-            final HttpServletRequest request, final ServletContext servletContext) {
+            final HttpServletRequest request, final ServletContext servletContext,
+            int webInvocationPrivilegeEvaluatorIndex) {
         
         if (logger.isTraceEnabled()) {
             logger.trace("[THYMELEAF][{}] Checking authorization for URL \"{}\" and method \"{}\" for user \"{}\".",
@@ -293,7 +289,7 @@ public final class AuthUtils {
         }
         
         final boolean result =
-                getPrivilegeEvaluator(servletContext).isAllowed(
+                getPrivilegeEvaluator(servletContext, webInvocationPrivilegeEvaluatorIndex).isAllowed(
                     request.getContextPath(), url, method, authentication) ? 
                             true : false;
 
@@ -308,11 +304,12 @@ public final class AuthUtils {
     }
 
 
-    
 
 
-    
-    private static WebInvocationPrivilegeEvaluator getPrivilegeEvaluator(final ServletContext servletContext) {
+
+
+    private static WebInvocationPrivilegeEvaluator getPrivilegeEvaluator(final ServletContext servletContext,
+                                                                         int webInvocationPrivilegeEvaluatorIndex) {
 
         final ApplicationContext ctx =
                 WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
@@ -327,7 +324,7 @@ public final class AuthUtils {
                     "Spring Security authorization queries.");
         }
 
-        return (WebInvocationPrivilegeEvaluator) privilegeEvaluators.values().toArray()[0];
+        return (WebInvocationPrivilegeEvaluator) privilegeEvaluators.values().toArray()[webInvocationPrivilegeEvaluatorIndex];
         
     }
 

@@ -19,15 +19,6 @@
  */
 package org.thymeleaf.extras.springsecurity4.dialect;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.core.Authentication;
 import org.thymeleaf.context.IContext;
 import org.thymeleaf.context.IProcessingContext;
@@ -41,6 +32,14 @@ import org.thymeleaf.extras.springsecurity4.dialect.processor.AuthorizeAclAttrPr
 import org.thymeleaf.extras.springsecurity4.dialect.processor.AuthorizeAttrProcessor;
 import org.thymeleaf.extras.springsecurity4.dialect.processor.AuthorizeUrlAttrProcessor;
 import org.thymeleaf.processor.IProcessor;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 
 
@@ -57,10 +56,23 @@ public class SpringSecurityDialect
     
     public static final String AUTHENTICATION_EXPRESSION_OBJECT_NAME = "authentication";
     public static final String AUTHORIZATION_EXPRESSION_OBJECT_NAME = "authorization";
-    
-    
-    public SpringSecurityDialect() {
+
+    public final int webInvocationPrivilegeEvaluatorIndex;
+
+
+    /**
+     * Explicitely set the index of the WebInvocationPrivilegeEvaluator that needs to be used.
+     *
+     * @param webInvocationPrivilegeEvaluatorIndex the index of the WebInvocationPrivilegeEvaluator
+     *
+     * @see <a href="https://jira.springsource.org/browse/SEC-2045">https://jira.springsource.org/browse/SEC-2045</a>
+     * @see <a href="https://jira.springsource.org/browse/SEC-2101">https://jira.springsource.org/browse/SEC-2101</a>
+     * @see <a href="https://jira.springsource.org/browse/SEC-2105">https://jira.springsource.org/browse/SEC-2105</a>
+     */
+    public SpringSecurityDialect(int webInvocationPrivilegeEvaluatorIndex) {
         super();
+
+        this.webInvocationPrivilegeEvaluatorIndex = webInvocationPrivilegeEvaluatorIndex;
     }
 
     
@@ -85,7 +97,7 @@ public class SpringSecurityDialect
         // synonym (sec:authorize = sec:authorize-expr) for similarity with 
         // "authorize-url" and "autorize-acl"
         processors.add(new AuthorizeAttrProcessor(AuthorizeAttrProcessor.ATTR_NAME_EXPR));
-        processors.add(new AuthorizeUrlAttrProcessor());
+        processors.add(new AuthorizeUrlAttrProcessor(webInvocationPrivilegeEvaluatorIndex));
         processors.add(new AuthorizeAclAttrProcessor());
         return processors;
     }
@@ -116,7 +128,7 @@ public class SpringSecurityDialect
                 
                 final Authentication authentication = AuthUtils.getAuthenticationObject();
                 final Authorization authorization = 
-                        new Authorization(processingContext, authentication, request, response, servletContext); 
+                        new Authorization(processingContext, authentication, request, response, servletContext, webInvocationPrivilegeEvaluatorIndex);
                         
                 objects.put(AUTHENTICATION_EXPRESSION_OBJECT_NAME, authentication);
                 objects.put(AUTHORIZATION_EXPRESSION_OBJECT_NAME, authorization);

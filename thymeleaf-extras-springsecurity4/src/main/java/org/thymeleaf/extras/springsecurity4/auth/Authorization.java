@@ -19,13 +19,13 @@
  */
 package org.thymeleaf.extras.springsecurity4.auth;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.core.Authentication;
 import org.thymeleaf.context.IProcessingContext;
 import org.thymeleaf.util.Validate;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 
@@ -44,6 +44,7 @@ public final class Authorization {
     private final HttpServletRequest request;
     private final HttpServletResponse response;
     private final ServletContext servletContext;
+    private final int webInvocationPrivilegeEvaluatorIndex;
     
     
 
@@ -52,7 +53,8 @@ public final class Authorization {
             final IProcessingContext processingContext,
             final Authentication authentication, 
             final HttpServletRequest request, final HttpServletResponse response,
-            final ServletContext servletContext) {
+            final ServletContext servletContext,
+            final int webInvocationPrivilegeEvaluatorIndex) {
         
         super();
 
@@ -61,7 +63,7 @@ public final class Authorization {
         this.request = request;
         this.response = response;
         this.servletContext = servletContext;
-        
+        this.webInvocationPrivilegeEvaluatorIndex = webInvocationPrivilegeEvaluatorIndex;
     }
 
 
@@ -88,7 +90,9 @@ public final class Authorization {
         return this.servletContext;
     }
 
-
+    public int getWebInvocationPrivilegeEvaluatorIndex() {
+        return webInvocationPrivilegeEvaluatorIndex;
+    }
 
     // Synonym method
     public boolean expr(final String expression) {
@@ -119,7 +123,7 @@ public final class Authorization {
         Validate.notEmpty(url, "URL cannot be null");
         
         return AuthUtils.authorizeUsingUrlCheck(
-                url, method, this.authentication, this.request, this.servletContext);
+                url, method, this.authentication, this.request, this.servletContext, webInvocationPrivilegeEvaluatorIndex);
         
     }
 

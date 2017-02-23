@@ -19,9 +19,6 @@
  */
 package org.thymeleaf.extras.springsecurity4.dialect.processor;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.security.core.Authentication;
 import org.thymeleaf.Arguments;
 import org.thymeleaf.context.IContext;
@@ -30,6 +27,9 @@ import org.thymeleaf.dom.Element;
 import org.thymeleaf.exceptions.ConfigurationException;
 import org.thymeleaf.extras.springsecurity4.auth.AuthUtils;
 import org.thymeleaf.processor.attr.AbstractConditionalVisibilityAttrProcessor;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Renders the element children (*tag content*) if the authenticated user is
@@ -43,12 +43,14 @@ public class AuthorizeUrlAttrProcessor
     
     public static final int ATTR_PRECEDENCE = 300;
     public static final String ATTR_NAME = "authorize-url";
+
+    private final int webInvocationPrivilegeEvaluatorIndex;
     
     
-    
-    
-    public AuthorizeUrlAttrProcessor() {
+    public AuthorizeUrlAttrProcessor(final int webInvocationPrivilegeEvaluatorIndex) {
         super(ATTR_NAME);
+
+        this.webInvocationPrivilegeEvaluatorIndex = webInvocationPrivilegeEvaluatorIndex;
     }
 
     
@@ -96,7 +98,7 @@ public class AuthorizeUrlAttrProcessor
         }
         
         return AuthUtils.authorizeUsingUrlCheck(
-                url, method, authentication, request, servletContext);
+                url, method, authentication, request, servletContext, webInvocationPrivilegeEvaluatorIndex);
         
     }
 
